@@ -16,7 +16,7 @@ load_dotenv(override=True)
 
 from langchain_community.document_loaders import TextLoader
 
-from langchain_text_splitters import MarkdownHeaderTextSplitter
+# from langchain_text_splitters import MarkdownHeaderTextSplitter
 
 loader = TextLoader(
     file_path="dataset0.md",
@@ -52,20 +52,19 @@ vectordb = Chroma(
 ######################################################################################################3
 #######################################################################################################
 
-retreiver = vectordb.as_retriever(search_type="mmr",search_kwargs={"k": 5,"fetch_k": 20})
-llm = ChatGoogleGenerativeAI(
-    model="gemini-3-pro-preview",
-    temperature=0.1,
-    max_output_tokens=512,
-    google_api_key=os.getenv("GOOGLE_API_KEY")
-)
-# llm = ChatOpenAI(
-#     model="gemini-3-pro-preview",  # example
-#     openai_api_key=os.getenv("API_KEY"),
-#     # openai_api_base="https://openrouter.ai/api/v1",
-#     temperature=0.3,
-#     max_tokens=512,
+retreiver = vectordb.as_retriever(search_type="similarity",search_kwargs={"k": 3})
+# llm = ChatGoogleGenerativeAI(
+#     model="gemini-3-pro-preview",
+#     temperature=0.1,
+#     max_output_tokens=512,
+#     google_api_key=os.getenv("GOOGLE_API_KEY")
 # )
+llm = ChatOpenAI(
+    model="stepfun/step-3.5-flash:free",  # example
+    openai_api_key=os.getenv("API_KEY"),
+    openai_api_base="https://openrouter.ai/api/v1",
+    temperature=0.1,
+)
 
 #######################################################################################################
 
@@ -111,7 +110,8 @@ Tone:
 
 """
 
-print(retreiver.invoke("Who is 100 Thieves?"))
+# print(retreiver.invoke("Who is 100 Thieves?"))
+print(llm.invoke("Who is 100 Thieves?"))
 
 # def answer_question():
 #     docs = retreiver.invoke("team coordination strategy patterns")
