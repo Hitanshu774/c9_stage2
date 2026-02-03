@@ -2,13 +2,13 @@ import os
 import glob
 
 from dotenv import load_dotenv
-
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_openai import ChatOpenAI
+
 
 import gradio as gr
 
@@ -22,37 +22,37 @@ team_name = "abc"  # Default for testing
 
 # from langchain_text_splitters import MarkdownHeaderTextSplitter
 
-# loader = TextLoader(
-#     file_path="dataset0.md",
-#     encoding="utf-8"
+loader = TextLoader(
+    file_path="dataset0.md",
+    encoding="utf-8"
+)
+
+documents = loader.load()
+
+text_splitter = RecursiveCharacterTextSplitter(chunk_size = 650, chunk_overlap = 100)
+chunks= text_splitter.split_documents(documents) 
+
+#######################################################################################################
+#######################################################################################################
+
+embeddings = HuggingFaceEmbeddings(model_name = "all-MiniLM-L6-v2")
+# embeddings = HuggingFaceEmbeddings(model_name = "BAAI/bge-large-en-v1.5")
+
+db_name = "vector_db1"
+
+if os.path.exists(db_name):
+    Chroma(persist_directory=db_name, embedding_function=embeddings).delete_collection()
+    
+vectordb = Chroma.from_documents(documents=chunks, embedding=embeddings, persist_directory=db_name)
+
+# embedding = HuggingFaceEmbeddings(
+#     model_name="all-MiniLM-L6-v2"
 # )
 
-# documents = loader.load()
-
-# text_splitter = RecursiveCharacterTextSplitter(chunk_size = 650, chunk_overlap = 100)
-# chunks= text_splitter.split_documents(documents) 
-
-#######################################################################################################
-#######################################################################################################
-
-# embeddings = HuggingFaceEmbeddings(model_name = "all-MiniLM-L6-v2")
-# # embeddings = HuggingFaceEmbeddings(model_name = "BAAI/bge-large-en-v1.5")
-
-# db_name = "vector_db1"
-
-# if os.path.exists(db_name):
-#     Chroma(persist_directory=db_name, embedding_function=embeddings).delete_collection()
-    
-# vectorstore = Chroma.from_documents(documents=chunks, embedding=embeddings, persist_directory=db_name)
-
-embedding = HuggingFaceEmbeddings(
-    model_name="all-MiniLM-L6-v2"
-)
-
-vectordb = Chroma(
-    persist_directory="./vector_db1",
-    embedding_function=embedding
-)
+# vectordb = Chroma(
+#     persist_directory="./vector_db1",
+#     embedding_function=embedding
+# )
 ######################################################################################################3
 #######################################################################################################
 
@@ -74,26 +74,20 @@ llm = ChatOpenAI(
 
 SYSTEM_PROMPT_TEMPLATE = """
 You are an Information Retrieval agent specialized in tactical analysis of the game Valorant.
-
 You are given retrieved reference material delimited below.
-
 --- RETRIEVED CONTEXT START ---
 {context}
 --- RETRIEVED CONTEXT END ---
-
 Your task is to analyze the retrieved context and identify COMMON TEAM-WIDE STRATEGIES.
-
 Definitions:
 - A "team-wide strategy" is a coordinated, repeatable pattern involving multiple players, roles, or utility usage.
 - Strategies may relate to attack, defense, mid-round adaptations, defaults, executions, rotations, or economy-based decisions.
 - Ignore individual mechanical plays unless they are part of a broader team pattern.
-
 Your responsibilities:
 1. Extract and identify recurring strategic patterns across rounds or matches.
 2. Group similar behaviors under a single strategy label when applicable.
 3. Focus on intent and structure (e.g., default → probe → late exec), not raw outcomes.
 4. Prefer strategies that are explicitly stated OR strongly implied through repetition.
-
 Output format:
 - Return a concise list of strategies.
 - For each strategy, include:
@@ -101,17 +95,14 @@ Output format:
   - Short Description (1–2 sentences)
   - Evidence Snippet(s) from the retrieved text
   - Applicable Context (Map, Side, Agent Composition, or Economy state if mentioned)
-
 Constraints:
 - Do NOT invent strategies not supported by the retrieved context.
 - Do NOT provide coaching advice or counter-strategies.
 - Do NOT summarize entire documents.
 - If no clear team-wide strategy is present, explicitly state:
   "No consistent team-wide strategy identified."
-
 Tone:
 - Analytical, neutral, precise.
-
 """
 
 # print(retreiver.invoke("Who is 100 Thieves?"))
@@ -136,37 +127,37 @@ print(answer_question(f"Identify Common Team-wide Strategies for {team_name}"))
 
 
 
-# loader2 = TextLoader(
-#     file_path="dataset1.md",
-#     encoding="utf-8"
+loader2 = TextLoader(
+    file_path="dataset1.md",
+    encoding="utf-8"
+)
+
+documents2 = loader2.load()
+
+text_splitter2 = RecursiveCharacterTextSplitter(chunk_size = 650, chunk_overlap = 100)
+chunks2= text_splitter2.split_documents(documents2) 
+
+#######################################################################################################
+#######################################################################################################
+
+embeddings2 = HuggingFaceEmbeddings(model_name = "all-MiniLM-L6-v2")
+# embeddings = HuggingFaceEmbeddings(model_name = "BAAI/bge-large-en-v1.5")
+
+db_name2 = "vector_db2"
+
+if os.path.exists(db_name2):
+    Chroma(persist_directory=db_name2, embedding_function=embeddings2).delete_collection()
+    
+vectordb2 = Chroma.from_documents(documents=chunks2, embedding=embeddings2, persist_directory=db_name2)
+
+# embedding2 = HuggingFaceEmbeddings(
+#     model_name="all-MiniLM-L6-v2"
 # )
 
-# documents2 = loader2.load()
-
-# text_splitter2 = RecursiveCharacterTextSplitter(chunk_size = 650, chunk_overlap = 100)
-# chunks2= text_splitter2.split_documents(documents) 
-
-#######################################################################################################
-#######################################################################################################
-
-# embeddings2 = HuggingFaceEmbeddings(model_name = "all-MiniLM-L6-v2")
-# # embeddings = HuggingFaceEmbeddings(model_name = "BAAI/bge-large-en-v1.5")
-
-# db_name2 = "vector_db2"
-
-# if os.path.exists(db_name2):
-#     Chroma(persist_directory=db_name2, embedding_function=embeddings2).delete_collection()
-    
-# vectorstore = Chroma.from_documents(documents=chunks, embedding=embeddings, persist_directory=db_name)
-
-embedding2 = HuggingFaceEmbeddings(
-    model_name="all-MiniLM-L6-v2"
-)
-
-vectordb2 = Chroma(
-    persist_directory="./vector_db2",
-    embedding_function=embedding2
-)
+# vectordb2 = Chroma(
+#     persist_directory="./vector_db2",
+#     embedding_function=embedding2
+# )
 ######################################################################################################3
 #######################################################################################################
 
@@ -188,27 +179,21 @@ llm2 = ChatOpenAI(
 
 SYSTEM_PROMPT_TEMPLATE2 = """
 You are an Information Retrieval agent specialized in tactical analysis of the game Valorant.
-
 You are given retrieved reference material delimited below.
-
 --- RETRIEVED CONTEXT START ---
 {context2}
 --- RETRIEVED CONTEXT END ---
-
 Your task is to analyze the retrieved context and identify KEY PLAYER TENDENCIES.
-
 Definitions:
 - A "player tendency" is a repeatable, individual behavior pattern exhibited by a specific player.
 - Tendencies may involve positioning, utility usage, aggression timing, role fulfillment, rotation speed, anchoring habits, or decision-making under similar conditions.
 - Tendencies must be consistent across multiple rounds or situations.
 - Ignore one-off plays or isolated highlights unless clearly repeated.
-
 Your responsibilities:
 1. Identify recurring behavioral patterns tied to specific players.
 2. Attribute each tendency to the correct player whenever possible.
 3. Group similar actions under a single tendency label.
 4. Focus on habits and preferences, not success or failure of the play.
-
 Output format:
 - Return a concise list of player tendencies.
 - For each tendency, include:
@@ -217,7 +202,6 @@ Output format:
   - Short Description (1–2 sentences)
   - Evidence Snippet(s) from the retrieved text
   - Applicable Context (Map, Side, Agent, Role, or Economy state if mentioned)
-
 Constraints:
 - Do NOT invent tendencies not supported by the retrieved context.
 - Do NOT provide advice, counterplay, or evaluation.
@@ -225,10 +209,8 @@ Constraints:
 - Do NOT summarize entire documents.
 - If no clear player tendencies are present, explicitly state:
   "No consistent player tendencies identified."
-
 Tone:
 - Analytical, neutral, precise.
-
 """
 
 def answer_question2(question: str):
@@ -270,37 +252,37 @@ print(answer_question2(f"Highlight Key Player Tendencies for {team_name}"))
 
 # from langchain_community.document_loaders import TextLoader
 
-# loader = TextLoader(
-#     file_path="dataset2.md",
-#     encoding="utf-8"
+loader3 = TextLoader(
+    file_path="dataset2.md",
+    encoding="utf-8"
+)
+
+documents3 = loader3.load()
+
+text_splitter3 = RecursiveCharacterTextSplitter(chunk_size = 650, chunk_overlap = 100)
+chunks3= text_splitter.split_documents(documents3) 
+
+#######################################################################################################
+#######################################################################################################
+
+embeddings3 = HuggingFaceEmbeddings(model_name = "all-MiniLM-L6-v2")
+# embeddings = HuggingFaceEmbeddings(model_name = "BAAI/bge-large-en-v1.5")
+
+db_name3 = "vector_db3"
+
+if os.path.exists(db_name3):
+    Chroma(persist_directory=db_name3, embedding_function=embeddings3).delete_collection()
+    
+vectordb3 = Chroma.from_documents(documents=chunks3, embedding=embeddings3, persist_directory=db_name3)
+
+# embedding3 = HuggingFaceEmbeddings(
+#     model_name="all-MiniLM-L6-v2"
 # )
 
-# documents = loader.load()
-
-# text_splitter = RecursiveCharacterTextSplitter(chunk_size = 650, chunk_overlap = 100)
-# chunks= text_splitter.split_documents(documents) 
-
-#######################################################################################################
-#######################################################################################################
-
-# embeddings = HuggingFaceEmbeddings(model_name = "all-MiniLM-L6-v2")
-# # embeddings = HuggingFaceEmbeddings(model_name = "BAAI/bge-large-en-v1.5")
-
-# db_name = "vector_db3"
-
-# if os.path.exists(db_name):
-#     Chroma(persist_directory=db_name, embedding_function=embeddings).delete_collection()
-    
-# vectorstore = Chroma.from_documents(documents=chunks, embedding=embeddings, persist_directory=db_name)
-
-embedding3 = HuggingFaceEmbeddings(
-    model_name="all-MiniLM-L6-v2"
-)
-
-vectordb3 = Chroma(
-    persist_directory="./vector_db3",
-    embedding_function=embedding3
-)
+# vectordb3 = Chroma(
+#     persist_directory="./vector_db3",
+#     embedding_function=embedding3
+# )
 ######################################################################################################3
 #######################################################################################################
 
@@ -322,34 +304,27 @@ llm3 = ChatOpenAI(
 
 SYSTEM_PROMPT_TEMPLATE3 = """
 You are an Information Retrieval agent specialized in tactical analysis of the game Valorant.
-
 You are given retrieved reference material delimited below.
-
 --- RETRIEVED CONTEXT START ---
 {context3}
 --- RETRIEVED CONTEXT END ---
-
 Your task is to analyze the retrieved context and summarize TEAM COMPOSITIONS AND SETUPS.
-
 Definitions:
 - A "composition" refers to the combination of agents and their roles used by a team.
 - A "setup" refers to the initial positioning, role assignments, or utility deployment patterns at the start of a round.
 - Setups may apply to attack, defense, pistol rounds, bonus rounds, or specific economy states.
 - Ignore mid-round adaptations unless they are explicitly described as part of the initial setup.
-
 Your responsibilities:
 1. Identify agent compositions used by the team(s).
 2. Identify recurring setups associated with those compositions.
 3. Group identical or near-identical compositions under a single entry.
 4. Associate setups with the correct side, map, or round type when mentioned.
-
 Output format:
 - Return a concise summary of compositions and setups.
 - For each entry, include:
   - Agent Composition
   - Evidence Snippet(s) from the retrieved text
   - Applicable Context (Map, Side, Round Type, or Economy state if mentioned)
-
 Constraints:
 - Do NOT invent compositions or setups not supported by the retrieved context.
 - Do NOT infer positioning or roles unless explicitly stated or clearly repeated.
@@ -357,10 +332,8 @@ Constraints:
 - Do NOT summarize entire documents.
 - If no clear compositions or setups are present, explicitly state:
   "No consistent compositions or setups identified."
-
 Tone:
 - Analytical, neutral, precise.
-
 """
 
 def answer_question3(question: str):
@@ -392,47 +365,35 @@ llm4 = ChatOpenAI(
 )
 SCOUTING_REPORT_PROMPT ="""
 You are a report-generation agent specialized in Valorant competitive scouting reports.
-
 You are given three pre-extracted inputs:
 1. Team-Wide Strategies
 2. Key Player Tendencies
 3. Compositions & Setups
-
 These inputs were produced by strict information retrieval agents and must be treated as factual.
-
 Your task is to generate a clean, well-structured SCOUTING REPORT using ONLY the provided inputs.
-
 Rules:
 - Do NOT invent new information.
 - Do NOT infer intent beyond what is written.
 - Do NOT add advice, counter-strategies, or evaluation.
 - Do NOT merge or reinterpret sections.
 - Preserve the meaning and constraints of each input.
-
 Formatting requirements:
 - Use clear section headers.
 - Each section must correspond exactly to one input.
 - Keep language concise, professional, and analytical.
 - If any input explicitly states that no information was identified, avoid including it in the report and dont even include that information missing from the context.
-
 Report structure:
-
 SCOUTING REPORT — {team_name}
-
 SECTION 1: Team-Wide Strategies
 <Formatted content based only on Input 1>
-
 SECTION 2: Key Player Tendencies
 <Formatted content based only on Input 2>
-
 SECTION 3: Compositions & Setups
 <Formatted content based only on Input 3>
-
 Tone:
 - Neutral
 - Analytical
 - Professional
-
 """
 
 def generate_scouting_report(team_name, strategies, tendencies, comps):
@@ -441,10 +402,8 @@ def generate_scouting_report(team_name, strategies, tendencies, comps):
     human_message = f"""
 INPUT 1 — TEAM-WIDE STRATEGIES:
 {strategies}
-
 INPUT 2 — KEY PLAYER TENDENCIES:
 {tendencies}
-
 INPUT 3 — COMPOSITIONS & SETUPS:
 {comps}
 """
