@@ -500,7 +500,7 @@ def run_scouting_report(team_input):
 
 gr.Interface(
     fn=run_scouting_report,  # ← This function now handles team_name
-    inputs=gr.Textbox(label="Team Name", placeholder="e.g. 100 Thieves"),
+    inputs=gr.Textbox(label="Team Name", placeholder="e.g. 100 Thieves, "),
     outputs=gr.Markdown(label="Scouting Report"),
     submit_btn="Generate Report"
 ).launch(inbrowser=True)
