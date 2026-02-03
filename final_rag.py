@@ -16,7 +16,7 @@ load_dotenv(override=True)
 
 from langchain_community.document_loaders import TextLoader
 
-team_name = input("Enter team name: ").strip()
+# team_name = input("Enter team name: ").strip()
 
 
 # from langchain_text_splitters import MarkdownHeaderTextSplitter
@@ -369,7 +369,127 @@ def answer_question3(question: str):
     response3 = llm3.invoke([SystemMessage(content=system_prompt3), HumanMessage(content=question)])
     return response3.content
 
-print(answer_question3(f"Summarize Compositions & Setups for {team_name}"))
+# print(answer_question3(f"Summarize Compositions & Setups for {team_name}"))
 
 # response = llm.invoke("Who are you?")
 # print(response.content)
+###################################################################################################################
+###################################################################################################################
+###################################################################################################################
+###################################################################################################################
+###################################################################################################################
+###################################################################################################################
+###################################################################################################################
+###################################################################################################################
+###################################################################################################################
+
+llm4 = ChatOpenAI(
+    model="nvidia/nemotron-nano-9b-v2:free",  # example
+    openai_api_key=os.getenv("API_KEY"),
+    openai_api_base="https://openrouter.ai/api/v1",
+    temperature=0.1,
+)
+SCOUTING_REPORT_PROMPT ="""
+You are a report-generation agent specialized in Valorant competitive scouting reports.
+
+You are given three pre-extracted inputs:
+1. Team-Wide Strategies
+2. Key Player Tendencies
+3. Compositions & Setups
+
+These inputs were produced by strict information retrieval agents and must be treated as factual.
+
+Your task is to generate a clean, well-structured SCOUTING REPORT using ONLY the provided inputs.
+
+Rules:
+- Do NOT invent new information.
+- Do NOT infer intent beyond what is written.
+- Do NOT add advice, counter-strategies, or evaluation.
+- Do NOT merge or reinterpret sections.
+- Preserve the meaning and constraints of each input.
+
+Formatting requirements:
+- Use clear section headers.
+- Each section must correspond exactly to one input.
+- Keep language concise, professional, and analytical.
+- If any input explicitly states that no information was identified, avoid including it in the report and dont even include that information missing from the context.
+
+Report structure:
+
+SCOUTING REPORT — {team_name}
+
+SECTION 1: Team-Wide Strategies
+<Formatted content based only on Input 1>
+
+SECTION 2: Key Player Tendencies
+<Formatted content based only on Input 2>
+
+SECTION 3: Compositions & Setups
+<Formatted content based only on Input 3>
+
+Tone:
+- Neutral
+- Analytical
+- Professional
+
+"""
+
+def generate_scouting_report(team_name, strategies, tendencies, comps):
+    system_prompt = SCOUTING_REPORT_PROMPT.format(team_name=team_name)
+
+    human_message = f"""
+INPUT 1 — TEAM-WIDE STRATEGIES:
+{strategies}
+
+INPUT 2 — KEY PLAYER TENDENCIES:
+{tendencies}
+
+INPUT 3 — COMPOSITIONS & SETUPS:
+{comps}
+"""
+
+    response = llm4.invoke([
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=human_message)
+    ])
+
+    return response.content
+
+def run_scouting_report(team_name: str):
+    strategies = answer_question(f"Identify common team-wide strategies for {team_name}")
+    tendencies = answer_question2(f"Highlight key player tendencies for {team_name}")
+    comps = answer_question3(f"Summarize compositions and setups for {team_name}")
+
+    report = generate_scouting_report(
+        team_name,   # ✅ team name from user is passed here
+        strategies,
+        tendencies,
+        comps
+    )
+
+    return report
+
+
+gr.Interface(
+    fn=run_scouting_report,   # ✅ pass function reference
+    inputs=gr.Textbox(
+        label="Team Name",
+        placeholder="e.g. 100 Thieves"
+    ),
+    outputs=gr.Markdown(label="Scouting Report"),
+    submit_btn="Generate Report"
+).launch(inbrowser=True)
+
+
+# strategies = answer_question(f"Identify common team-wide strategies for {team_name}")
+# tendencies = answer_question2(f"Highlight key player tendencies for {team_name}")
+# comps = answer_question3(f"Summarize compositions and setups for {team_name}")
+
+# report = generate_scouting_report(
+#     team_name,
+#     strategies,
+#     tendencies,
+#     comps
+# )
+
+# print(report)
