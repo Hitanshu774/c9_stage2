@@ -17,6 +17,7 @@ load_dotenv(override=True)
 from langchain_community.document_loaders import TextLoader
 
 # team_name = input("Enter team name: ").strip()
+team_name = "abc"  # Default for testing
 
 
 # from langchain_text_splitters import MarkdownHeaderTextSplitter
@@ -455,30 +456,55 @@ INPUT 3 — COMPOSITIONS & SETUPS:
 
     return response.content
 
-def run_scouting_report(team_name: str):
+# def run_scouting_report(team_name: str):
+#     strategies = answer_question(f"Identify common team-wide strategies for {team_name}")
+#     tendencies = answer_question2(f"Highlight key player tendencies for {team_name}")
+#     comps = answer_question3(f"Summarize compositions and setups for {team_name}")
+
+#     report = generate_scouting_report(
+#         team_name,   # ✅ team name from user is passed here
+#         strategies,
+#         tendencies,
+#         comps
+#     )
+
+#     return report
+
+
+# gr.Interface(
+#     fn=run_scouting_report,   # ✅ pass function reference
+#     inputs=gr.Textbox(
+#         label="Team Name",
+#         placeholder="e.g. 100 Thieves"
+#     ),
+#     outputs=gr.Markdown(label="Scouting Report"),
+#     submit_btn="Generate Report"
+# ).launch(inbrowser=True)
+
+
+# ✅ Add this BEFORE your existing Gradio block
+
+def run_scouting_report(team_input):
+    global team_name
+    team_name = team_input.strip() if team_input.strip() else "100 Thieves"
+    
+    print(f"🔍 Processing: {team_name}")
+    
+    # Your existing functions use the SAME team_name now
     strategies = answer_question(f"Identify common team-wide strategies for {team_name}")
     tendencies = answer_question2(f"Highlight key player tendencies for {team_name}")
     comps = answer_question3(f"Summarize compositions and setups for {team_name}")
-
-    report = generate_scouting_report(
-        team_name,   # ✅ team name from user is passed here
-        strategies,
-        tendencies,
-        comps
-    )
-
-    return report
-
+    
+    report = generate_scouting_report(team_name, strategies, tendencies, comps)
+    return f"**SCOUTING REPORT: {team_name.upper()}**\n\n{report}"
 
 gr.Interface(
-    fn=run_scouting_report,   # ✅ pass function reference
-    inputs=gr.Textbox(
-        label="Team Name",
-        placeholder="e.g. 100 Thieves"
-    ),
+    fn=run_scouting_report,  # ← This function now handles team_name
+    inputs=gr.Textbox(label="Team Name", placeholder="e.g. 100 Thieves"),
     outputs=gr.Markdown(label="Scouting Report"),
     submit_btn="Generate Report"
 ).launch(inbrowser=True)
+
 
 
 # strategies = answer_question(f"Identify common team-wide strategies for {team_name}")
