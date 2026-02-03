@@ -111,16 +111,16 @@ Tone:
 """
 
 # print(retreiver.invoke("Who is 100 Thieves?"))
-print(llm.invoke("Who is 100 Thieves?"))
+# print(llm.invoke("Who is 100 Thieves?"))
 
-# def answer_question():
-#     docs = retreiver.invoke("team coordination strategy patterns")
-#     context = "\n\n".join(doc.page_content for doc in docs)
-#     system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=context)
-#     response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content="Hello, who are you")])
-#     return response.content
+def answer_question(question: str):
+    docs = retreiver.invoke(question)
+    context = "\n\n".join(doc.page_content for doc in docs)
+    system_prompt = SYSTEM_PROMPT_TEMPLATE.format(context=context)
+    response = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=question)])
+    return response.content
 
-# print(answer_question())
+print(answer_question("Identify Common Team-wide Strategies for 100 Thieves"))
 # response = llm.invoke("Who are you?")
 # print(response.content)
 
